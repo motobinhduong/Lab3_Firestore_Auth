@@ -1,64 +1,126 @@
-import { useState } from "react";
-import { View ,Image, Text} from "react-native";
-import { Button, TextInput } from "react-native-paper";
-//import { createAccount } from "../store";
+import React, { useState, useEffect } from 'react';
+import { Image, View } from 'react-native';
+import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+import { createAccount } from '../store/index';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
-const Register =({navigation})=>{
+const Register = ({ navigation }) => {
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [role] = useState('');
+  const [email, setEmail] = useState('');
+  const [fullName, setFullname] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [disableCreate, setDisableCreate] = useState(true);
 
+  const hasErrorFullName = () => fullName === "";
+  const hasErrorEmail = () => !email.includes('@');
+  const hasErrorPassword = () => password.length < 6;
+  const hasErrorPasswordConfirm = () => confirmPassword !== password;
 
-const [ email, setEmail] = useState("")
-const [password, setPassword] = useState("")
-const [fullname, setFullname] = useState("")
-const [ confirmpassword, setConfirmpassword] = useState("")
-const handleCreateAccout =()=>{
-    createAccount(email, password, fullname)
-}
-return(
-    <View style={{flex:1, justifyContent:"center"}}>
-        <Image
-            resizeMode="stretch"
-            source={require("../assets/logofirebase.png")}
-            style={{height:100, marginBottom:20, alignItems:"center"}}
-            />
-        <TextInput
-        label={"FullName"}
-        value={fullname}
+  useEffect(() => {
+    setDisableCreate(
+      hasErrorFullName() ||
+      hasErrorEmail() ||
+      hasErrorPassword() ||
+      hasErrorPasswordConfirm() ||
+      phone.trim() === '' ||
+      address.trim() === ''
+    );
+  }, [fullName, email, password, confirmPassword, phone, address, hasErrorFullName, hasErrorEmail, hasErrorPassword, hasErrorPasswordConfirm]);
+
+  const handleRegister = () => {
+    createAccount(email, password, fullName, phone, address, role);
+  };
+
+  return (
+    <View style={{ flex: 1, padding: 10 }}>
+      <Text style={{
+        fontSize: 30,
+        fontWeight: "bold",
+        alignSelf: "center",
+        color: "black",
+        marginTop: 50,
+        marginBottom: 50
+      }}> Register New Account </Text>
+      <TextInput
+        label={"Full Name"}
+        value={fullName}
         onChangeText={setFullname}
-        placeholder="Nhap Ho Va Ten" />
-        <TextInput
+      />
+      <HelperText type='error' visible={hasErrorFullName()}>
+        Tên không được phép để trống
+      </HelperText>
+      <TextInput
         label={"Email"}
         value={email}
-        onChangeText={setEmail} 
-        placeholder="Nhap dia chi Email"/>
+        onChangeText={setEmail}
+      />
+      <HelperText type='error' visible={hasErrorEmail()}>
+        Địa chỉ email không hợp lệ
+      </HelperText>
+      <View style={{ flexDirection: "row" }}>
         <TextInput
-        label={"Password"}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        placeholder="Nhap Mat Khau" />
+          label={"Password"}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={showPassword}
+          style={{ flex: 1 }}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Image
+            source={showPassword ? require('../assets/eye.png') : require('../assets/eye-hidden.png')}
+            style={{ width: 20, height: 20, margin: 20 }}
+          />
+        </TouchableOpacity>
+      </View>
+      <HelperText type='error' visible={hasErrorPassword()}>
+        Password ít nhất 6 kí tự
+      </HelperText>
+      <View style={{ flexDirection: "row" }}>
         <TextInput
-        label={"ConfirmPassword"}
-        value={confirmpassword}
-        onChangeText={setConfirmpassword}
-        secureTextEntry
-        placeholder="Nhap lai mat khau" />
-        <Button mode="contained" buttonColor="red"
-         onPress={handleCreateAccout}
-        >
-            Create Account
+          label={"Confirm Password"}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry={showConfirmPassword}
+          style={{ flex: 1 }}
+        />
+        <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+          <Image
+            source={showConfirmPassword ? require('../assets/eye.png') : require('../assets/eye-hidden.png')}
+            style={{ width: 20, height: 20, margin: 20 }}
+          />
+        </TouchableOpacity>
+      </View>
+      <HelperText type='error' visible={hasErrorPasswordConfirm()}>
+        Mật khẩu nhập lại không đúng
+      </HelperText>
+      <TextInput
+        label={"Address"}
+        value={address}
+        onChangeText={setAddress}
+        style={{ marginBottom: 20 }}
+      />
+      <TextInput
+        label={"Phone"}
+        value={phone}
+        onChangeText={setPhone}
+        style={{ marginBottom: 20 }}
+      />
+      <Button textColor='black' buttonColor='pink' mode='contained' onPress={handleRegister} disabled={disableCreate}>
+        Create New Account
+      </Button>
+      <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+        <Text>Do you have an account ?</Text>
+        <Button onPress={() => navigation.navigate("Login")}>
+          Login Account
         </Button>
-        <View style ={{
-        flexDirection:"row",
-        alignItems:"center",
-        justifyContent:"center"}}>
-            <Text>
-                Already got an account
-            </Text>
-            <Button onPress={()=>navigation.navigate("Login")}>
-                Login
-            </Button>
-        </View>
+      </View>
     </View>
-)
-}
+  );
+};
+
 export default Register;

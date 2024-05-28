@@ -3,7 +3,7 @@ import { Text } from "react-native-paper";
 import { View, StyleSheet } from "react-native";
 import { useMyContextProvider } from "../store/index";
 
-const Profile = () =>{
+const ProfileCustomer = () =>{
     const [controller, dispatch] = useMyContextProvider();
     const { userLogin } = controller;
 
@@ -49,4 +49,4 @@ const Profile = () =>{
         </View>
     )
 }
-export default Profile;
+export default ProfileCustomer;
